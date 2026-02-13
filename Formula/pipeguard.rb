@@ -2,7 +2,7 @@ class Pipeguard < Formula
   desc "Defend against curl|bash attacks with multi-layer shell interception"
   homepage "https://github.com/SecurityRonin/pipeguard"
   url "https://github.com/SecurityRonin/pipeguard/archive/refs/tags/v0.1.0.tar.gz"
-  sha256 "790a571b52ae605140943cbba57e76e1f6356ebd42dfdb266a97b4ab0851686b"
+  sha256 "6cbd30a581b4590e73d2b5d6b785fc099a254f0129eb6515f34d2937c1847ed4"
   license "MIT"
 
   depends_on "rust" => :build
