@@ -26,24 +26,26 @@ class Pipeguard < Formula
 
   def caveats
     <<~EOS
-      To activate PipeGuard shell protection, add to your shell RC file:
+      PipeGuard requires one manual step to activate shell protection.
+      We don't modify your dotfiles automatically — informed consent
+      before code runs in your shell is kind of our whole thing.
 
-        # For zsh (~/.zshrc):
-        export PATH="#{HOMEBREW_PREFIX}/bin:$PATH"
+      Add this line to your shell RC file:
+
+        # For zsh (add to ~/.zshrc):
         source #{opt_share}/pipeguard/shell/init.sh
 
-        # For bash (~/.bashrc):
-        export PATH="#{HOMEBREW_PREFIX}/bin:$PATH"
+        # For bash (add to ~/.bashrc):
         source #{opt_share}/pipeguard/shell/init.sh
 
       Then restart your shell or run:
         source ~/.zshrc  # or ~/.bashrc
 
-      YARA rules are installed at:
-        #{opt_share}/pipeguard/rules/core.yar
+      Verify it's working:
+        pipeguard-status
 
-      Configure PipeGuard:
-        pipeguard config init
+      YARA rules installed at:
+        #{opt_share}/pipeguard/rules/core.yar
     EOS
   end
 
