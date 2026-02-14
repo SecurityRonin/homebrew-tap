@@ -1,8 +1,8 @@
 class Pipeguard < Formula
   desc "Defend against curl|bash attacks with multi-layer shell interception"
   homepage "https://github.com/SecurityRonin/pipeguard"
-  url "https://github.com/SecurityRonin/pipeguard/archive/refs/tags/v0.1.0.tar.gz"
-  sha256 "6cbd30a581b4590e73d2b5d6b785fc099a254f0129eb6515f34d2937c1847ed4"
+  url "https://github.com/SecurityRonin/pipeguard/archive/refs/tags/v0.1.1.tar.gz"
+  sha256 "bfcbd94ddd24a847473a94bfd8cc8282193a9df51c181317e3aad60b92f12485"
   license "MIT"
 
   depends_on "rust" => :build
@@ -18,10 +18,11 @@ class Pipeguard < Formula
     (share/"pipeguard/shell").install "shell/init.sh"
     (share/"pipeguard/shell").install "shell/pipeguard.zsh"
     (share/"pipeguard/shell").install "shell/pipeguard.bash"
+    (share/"pipeguard/shell").install "shell/pipeguard-common.sh"
     (share/"pipeguard/shell").install "shell/content-filter.sh"
 
     # Install YARA rules
-    (share/"pipeguard/rules").install "rules/core.yar"
+    (share/"pipeguard/rules").install Dir["rules/*.yar"]
   end
 
   def caveats
@@ -45,7 +46,7 @@ class Pipeguard < Formula
         pipeguard-status
 
       YARA rules installed at:
-        #{opt_share}/pipeguard/rules/core.yar
+        #{opt_share}/pipeguard/rules/
     EOS
   end
 
