@@ -50,10 +50,11 @@ jobs:
             grep "$1" checksums.txt | awk '{print $1}'
           }
 
-          echo "arm64_macos_sha=$(extract_sha 'blazehash-aarch64-apple-darwin.tar.gz')" >> $GITHUB_OUTPUT
-          echo "x86_64_macos_sha=$(extract_sha 'blazehash-x86_64-apple-darwin.tar.gz')" >> $GITHUB_OUTPUT
-          echo "arm64_linux_sha=$(extract_sha 'blazehash-aarch64-unknown-linux-musl.tar.gz')" >> $GITHUB_OUTPUT
-          echo "x86_64_linux_sha=$(extract_sha 'blazehash-x86_64-unknown-linux-musl.tar.gz')" >> $GITHUB_OUTPUT
+          VERSION="${{ steps.get-version.outputs.version }}"
+          echo "arm64_macos_sha=$(extract_sha "blazehash-${VERSION}-aarch64-apple-darwin.tar.gz")" >> $GITHUB_OUTPUT
+          echo "x86_64_macos_sha=$(extract_sha "blazehash-${VERSION}-x86_64-apple-darwin.tar.gz")" >> $GITHUB_OUTPUT
+          echo "arm64_linux_sha=$(extract_sha "blazehash-${VERSION}-aarch64-unknown-linux-musl.tar.gz")" >> $GITHUB_OUTPUT
+          echo "x86_64_linux_sha=$(extract_sha "blazehash-${VERSION}-x86_64-unknown-linux-musl.tar.gz")" >> $GITHUB_OUTPUT
 
       - name: Update Formula
         run: |
@@ -72,20 +73,20 @@ jobs:
 
             on_macos do
               if Hardware::CPU.arm?
-                url "https://github.com/SecurityRonin/blazehash/releases/download/v${VERSION}/blazehash-aarch64-apple-darwin.tar.gz"
+                url "https://github.com/SecurityRonin/blazehash/releases/download/v${VERSION}/blazehash-${VERSION}-aarch64-apple-darwin.tar.gz"
                 sha256 "${ARM64_MACOS}"
               else
-                url "https://github.com/SecurityRonin/blazehash/releases/download/v${VERSION}/blazehash-x86_64-apple-darwin.tar.gz"
+                url "https://github.com/SecurityRonin/blazehash/releases/download/v${VERSION}/blazehash-${VERSION}-x86_64-apple-darwin.tar.gz"
                 sha256 "${X86_64_MACOS}"
               end
             end
 
             on_linux do
               if Hardware::CPU.arm?
-                url "https://github.com/SecurityRonin/blazehash/releases/download/v${VERSION}/blazehash-aarch64-unknown-linux-musl.tar.gz"
+                url "https://github.com/SecurityRonin/blazehash/releases/download/v${VERSION}/blazehash-${VERSION}-aarch64-unknown-linux-musl.tar.gz"
                 sha256 "${ARM64_LINUX}"
               else
-                url "https://github.com/SecurityRonin/blazehash/releases/download/v${VERSION}/blazehash-x86_64-unknown-linux-musl.tar.gz"
+                url "https://github.com/SecurityRonin/blazehash/releases/download/v${VERSION}/blazehash-${VERSION}-x86_64-unknown-linux-musl.tar.gz"
                 sha256 "${X86_64_LINUX}"
               end
             end
