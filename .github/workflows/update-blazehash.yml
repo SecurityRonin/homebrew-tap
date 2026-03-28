@@ -1,0 +1,118 @@
+name: Update blazehash formula
+
+on:
+  repository_dispatch:
+    types: [update-formula]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to update to (e.g., v0.1.0 or 0.1.0)'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  update-formula:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set version from event
+        id: get-version
+        run: |
+          if [ "${{ github.event_name }}" = "repository_dispatch" ]; then
+            RAW="${{ github.event.client_payload.version }}"
+          else
+            RAW="${{ inputs.version }}"
+          fi
+          # Strip leading 'v' if present (tags are v0.1.0, formula wants 0.1.0)
+          VERSION="${RAW#v}"
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download checksums from release
+        run: |
+          VERSION="${{ steps.get-version.outputs.version }}"
+          echo "Downloading checksums for v${VERSION}..."
+          gh release download "v${VERSION}" \
+            --repo SecurityRonin/blazehash \
+            --pattern "checksums.txt"
+          cat checksums.txt
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      - name: Extract SHA256 checksums
+        id: checksums
+        run: |
+          extract_sha() {
+            grep "$1" checksums.txt | awk '{print $1}'
+          }
+
+          echo "arm64_macos_sha=$(extract_sha 'blazehash-aarch64-apple-darwin.tar.gz')" >> $GITHUB_OUTPUT
+          echo "x86_64_macos_sha=$(extract_sha 'blazehash-x86_64-apple-darwin.tar.gz')" >> $GITHUB_OUTPUT
+          echo "arm64_linux_sha=$(extract_sha 'blazehash-aarch64-unknown-linux-musl.tar.gz')" >> $GITHUB_OUTPUT
+          echo "x86_64_linux_sha=$(extract_sha 'blazehash-x86_64-unknown-linux-musl.tar.gz')" >> $GITHUB_OUTPUT
+
+      - name: Update Formula
+        run: |
+          VERSION="${{ steps.get-version.outputs.version }}"
+          ARM64_MACOS="${{ steps.checksums.outputs.arm64_macos_sha }}"
+          X86_64_MACOS="${{ steps.checksums.outputs.x86_64_macos_sha }}"
+          ARM64_LINUX="${{ steps.checksums.outputs.arm64_linux_sha }}"
+          X86_64_LINUX="${{ steps.checksums.outputs.x86_64_linux_sha }}"
+
+          cat > Formula/blazehash.rb << FORMULA
+          class Blazehash < Formula
+            desc "Forensic file hasher — hashdeep for the modern era, BLAKE3 by default"
+            homepage "https://github.com/SecurityRonin/blazehash"
+            version "${VERSION}"
+            license "MIT"
+
+            on_macos do
+              if Hardware::CPU.arm?
+                url "https://github.com/SecurityRonin/blazehash/releases/download/v${VERSION}/blazehash-aarch64-apple-darwin.tar.gz"
+                sha256 "${ARM64_MACOS}"
+              else
+                url "https://github.com/SecurityRonin/blazehash/releases/download/v${VERSION}/blazehash-x86_64-apple-darwin.tar.gz"
+                sha256 "${X86_64_MACOS}"
+              end
+            end
+
+            on_linux do
+              if Hardware::CPU.arm?
+                url "https://github.com/SecurityRonin/blazehash/releases/download/v${VERSION}/blazehash-aarch64-unknown-linux-musl.tar.gz"
+                sha256 "${ARM64_LINUX}"
+              else
+                url "https://github.com/SecurityRonin/blazehash/releases/download/v${VERSION}/blazehash-x86_64-unknown-linux-musl.tar.gz"
+                sha256 "${X86_64_LINUX}"
+              end
+            end
+
+            def install
+              bin.install "blazehash"
+            end
+
+            test do
+              assert_match "blazehash", shell_output("#{bin}/blazehash --version")
+
+              (testpath/"test.txt").write("blazehash test content")
+              output = shell_output("#{bin}/blazehash #{testpath}/test.txt")
+              assert_match "test.txt", output
+            end
+          end
+          FORMULA
+
+          # Remove leading whitespace from heredoc
+          sed -i 's/^          //' Formula/blazehash.rb
+
+      - name: Commit and push
+        run: |
+          VERSION="${{ steps.get-version.outputs.version }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add Formula/blazehash.rb
+          git diff --cached --quiet && echo "No changes to commit" && exit 0
+          git commit -m "blazehash: update to v${VERSION}"
+          git push
