@@ -2,7 +2,7 @@ name: Update blazehash formula
 
 on:
   repository_dispatch:
-    types: [update-formula]
+    types: [update-blazehash]
   workflow_dispatch:
     inputs:
       version:
