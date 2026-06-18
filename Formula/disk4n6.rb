@@ -1,26 +1,26 @@
 class Disk4n6 < Formula
   desc "Forensic disk analyzer — decode images & live devices, map partitions, flag anomalies"
   homepage "https://github.com/SecurityRonin/disk-forensic"
-  version "0.8.3"
+  version "0.8.4"
   license "Apache-2.0"
 
   on_macos do
     if Hardware::CPU.arm?
-      url "https://github.com/SecurityRonin/disk-forensic/releases/download/v0.8.3/disk4n6-0.8.3-aarch64-apple-darwin.tar.gz"
-      sha256 "fd16985a90b332278a4717bf82132d871bda4680c3c678c6828ba264545cfeec"
+      url "https://github.com/SecurityRonin/disk-forensic/releases/download/v0.8.4/disk4n6-0.8.4-aarch64-apple-darwin.tar.gz"
+      sha256 "be5d99f856835ec56c6bb549b181c049972a18b58fa462c7ce45b50adcb53858"
     else
-      url "https://github.com/SecurityRonin/disk-forensic/releases/download/v0.8.3/disk4n6-0.8.3-x86_64-apple-darwin.tar.gz"
-      sha256 "3b3c250e61fd6968e6883e1f115b2548bcffee64b2ccd7f068c48b6a40f9f95c"
+      url "https://github.com/SecurityRonin/disk-forensic/releases/download/v0.8.4/disk4n6-0.8.4-x86_64-apple-darwin.tar.gz"
+      sha256 "4853f9eefb66a94c523f9df6d9840a4cf7ba6c4589bfd4034b129bc7b142eec0"
     end
   end
 
   on_linux do
     if Hardware::CPU.arm?
-      url "https://github.com/SecurityRonin/disk-forensic/releases/download/v0.8.3/disk4n6-0.8.3-aarch64-unknown-linux-musl.tar.gz"
-      sha256 "32590e0f51c1465683a97c04a69684f06132f9b40c5f0ffca47a68b056b34c9f"
+      url "https://github.com/SecurityRonin/disk-forensic/releases/download/v0.8.4/disk4n6-0.8.4-aarch64-unknown-linux-musl.tar.gz"
+      sha256 "ff2b3451f04122336b158b2eb2c0a80e86144592829e92dbe37985d69dfb30b0"
     else
-      url "https://github.com/SecurityRonin/disk-forensic/releases/download/v0.8.3/disk4n6-0.8.3-x86_64-unknown-linux-musl.tar.gz"
-      sha256 "4550287b781554e26122b0786b09b938a92fb3e6b10fbbd99dbf48fe630dc4b5"
+      url "https://github.com/SecurityRonin/disk-forensic/releases/download/v0.8.4/disk4n6-0.8.4-x86_64-unknown-linux-musl.tar.gz"
+      sha256 "120228020c2a042cf8ff19b48ee347b6ed5f60b7c38cf3d659c870556ee4540a"
     end
   end
 
