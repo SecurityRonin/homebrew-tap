@@ -93,8 +93,8 @@ jobs:
 
             def install
               bin.install "timeglyph"
-              # The macOS archive also carries the spy GUI (Linux is CLI-only).
-              bin.install "timeglyph-spy" if OS.mac?
+              # The macOS archive also carries the lens GUI (Linux is CLI-only).
+              bin.install "timeglyph-lens" if OS.mac?
             end
 
             test do
