@@ -7,20 +7,20 @@ class Timeglyph < Formula
   on_macos do
     if Hardware::CPU.arm?
       url "https://github.com/SecurityRonin/timeglyph/releases/download/v0.4.0/timeglyph-0.4.0-aarch64-apple-darwin.tar.gz"
-      sha256 "3873a0018b8d461054e774d3aee45739ca49a586dbf4146434946e9761ea237e"
+      sha256 "6540a4c8794e02dd83171bf23e50b0278f9220dab8668c68a70b4f68cd43a767"
     else
       url "https://github.com/SecurityRonin/timeglyph/releases/download/v0.4.0/timeglyph-0.4.0-x86_64-apple-darwin.tar.gz"
-      sha256 "028ff9b6ee9e1f789719410c4da42900ffcb2247177137855e972d0abd20e1a8"
+      sha256 "cd70ade66aacb63f3f8813859861da53d0cd3fa2ef69cc12d5053132ea13c5a7"
     end
   end
 
   on_linux do
     if Hardware::CPU.arm?
       url "https://github.com/SecurityRonin/timeglyph/releases/download/v0.4.0/timeglyph-0.4.0-aarch64-unknown-linux-musl.tar.gz"
-      sha256 "b3095d5aa0de903db0012f1f5c2af9a25c37c54cd559f722369d97faeda71947"
+      sha256 "7d7f3ffc9735adb3c657a04f3c1587fcf539703455b380e1cd3dadc035514932"
     else
       url "https://github.com/SecurityRonin/timeglyph/releases/download/v0.4.0/timeglyph-0.4.0-x86_64-unknown-linux-musl.tar.gz"
-      sha256 "0135785d2fb36175c1409c1fe6b5143c166b3ba3f7f175f5d4c3acf37f5458fc"
+      sha256 "2c62d886d2ed768b41d1352c3091fa821da121d46341626fcf83d64d36bfd0a5"
     end
   end
 
