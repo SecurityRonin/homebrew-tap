@@ -1,31 +1,33 @@
 class Timeglyph < Formula
   desc "Forensic timestamp decipherment — scored, cited, ambiguity-first"
   homepage "https://github.com/SecurityRonin/timeglyph"
-  version "0.3.0"
+  version "0.4.0"
   license "Apache-2.0"
 
   on_macos do
     if Hardware::CPU.arm?
-      url "https://github.com/SecurityRonin/timeglyph/releases/download/v0.3.0/timeglyph-0.3.0-aarch64-apple-darwin.tar.gz"
-      sha256 "f27f62c3ac102877e6fb2e2fef4ba01093b410a9dfaeeba84679e0d72d963154"
+      url "https://github.com/SecurityRonin/timeglyph/releases/download/v0.4.0/timeglyph-0.4.0-aarch64-apple-darwin.tar.gz"
+      sha256 "7427034f0f062a92007d551b501d61d373e15c304589ff264c21769ac3f59546"
     else
-      url "https://github.com/SecurityRonin/timeglyph/releases/download/v0.3.0/timeglyph-0.3.0-x86_64-apple-darwin.tar.gz"
-      sha256 "928976b378bf9ad3a7f037996d9495fa8b4c1ee009087b04448d0f0e459951ce"
+      url "https://github.com/SecurityRonin/timeglyph/releases/download/v0.4.0/timeglyph-0.4.0-x86_64-apple-darwin.tar.gz"
+      sha256 "1ee52c2c75bc3b69f0a6ff30c744ac5520821eba2ad1a6448e50cb0f9c53a717"
     end
   end
 
   on_linux do
     if Hardware::CPU.arm?
-      url "https://github.com/SecurityRonin/timeglyph/releases/download/v0.3.0/timeglyph-0.3.0-aarch64-unknown-linux-musl.tar.gz"
-      sha256 "d7a66fa47e6897c74c186d6e0a772b2885725fe40f40415ced8a9f1498865f8c"
+      url "https://github.com/SecurityRonin/timeglyph/releases/download/v0.4.0/timeglyph-0.4.0-aarch64-unknown-linux-musl.tar.gz"
+      sha256 "7fa3725a8c254e5fdf1d40e53354b989b2d86b8ff83cc2a3f98c3405f5986473"
     else
-      url "https://github.com/SecurityRonin/timeglyph/releases/download/v0.3.0/timeglyph-0.3.0-x86_64-unknown-linux-musl.tar.gz"
-      sha256 "be012ce75e2deceee1c3b9b50f532a581ff9b69fa2ab27ea2efeeb9d67633bf1"
+      url "https://github.com/SecurityRonin/timeglyph/releases/download/v0.4.0/timeglyph-0.4.0-x86_64-unknown-linux-musl.tar.gz"
+      sha256 "6d50f8caa55835be0a1065912f84fb857ef675f5f532f8d6d3c92983c25beff5"
     end
   end
 
   def install
     bin.install "timeglyph"
+    # The macOS archive also carries the lens GUI (Linux is CLI-only).
+    bin.install "timeglyph-lens" if OS.mac?
   end
 
   test do
