@@ -1,26 +1,26 @@
 class Sqlite4n6 < Formula
   desc "Read-only SQLite forensic CLI — carve deleted records, grade anomalies"
   homepage "https://github.com/SecurityRonin/sqlite-forensic"
-  version "0.8.0"
+  version "0.10.0"
   license "Apache-2.0"
 
   on_macos do
     if Hardware::CPU.arm?
-      url "https://github.com/SecurityRonin/sqlite-forensic/releases/download/v0.8.0/sqlite4n6-0.8.0-aarch64-apple-darwin.tar.gz"
-      sha256 "a3b6185e1255d12acb4a197373e39df91bea2ac493af7c26e3e76bca5bc6c39a"
+      url "https://github.com/SecurityRonin/sqlite-forensic/releases/download/v0.10.0/sqlite4n6-0.10.0-aarch64-apple-darwin.tar.gz"
+      sha256 "e4396e58deec90789a57ab60d8f7333214c8ba0564e5d0ae8062c352a2799157"
     else
-      url "https://github.com/SecurityRonin/sqlite-forensic/releases/download/v0.8.0/sqlite4n6-0.8.0-x86_64-apple-darwin.tar.gz"
-      sha256 "89c9d436ab0a920f5851a9bf771204e11687d50268f341b188cdf18be6daf589"
+      url "https://github.com/SecurityRonin/sqlite-forensic/releases/download/v0.10.0/sqlite4n6-0.10.0-x86_64-apple-darwin.tar.gz"
+      sha256 "4f2d594ea2acbaf75e4943aa2eb43cce82293deb5ca5bcfe7d086039427113ab"
     end
   end
 
   on_linux do
     if Hardware::CPU.arm?
-      url "https://github.com/SecurityRonin/sqlite-forensic/releases/download/v0.8.0/sqlite4n6-0.8.0-aarch64-unknown-linux-musl.tar.gz"
-      sha256 "949bff8e5108f80061da2a5e1ffae142fc4795c961264b1866095c38c2f355ca"
+      url "https://github.com/SecurityRonin/sqlite-forensic/releases/download/v0.10.0/sqlite4n6-0.10.0-aarch64-unknown-linux-musl.tar.gz"
+      sha256 "838b4918fd6b7a2c7c07b53d0b50d115540a8afac1b9ec1fad601777b8411d04"
     else
-      url "https://github.com/SecurityRonin/sqlite-forensic/releases/download/v0.8.0/sqlite4n6-0.8.0-x86_64-unknown-linux-musl.tar.gz"
-      sha256 "67d4017c762d8cd7a35e3cd7d90c5a0f10bc6788e4d0df6f87cd128e255169bb"
+      url "https://github.com/SecurityRonin/sqlite-forensic/releases/download/v0.10.0/sqlite4n6-0.10.0-x86_64-unknown-linux-musl.tar.gz"
+      sha256 "0c1be7b511bb3c0eecf9330330780396c5244d28471cb9a3e0f653924c952c4e"
     end
   end
 
