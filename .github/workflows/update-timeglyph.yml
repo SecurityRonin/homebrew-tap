@@ -55,14 +55,19 @@ jobs:
           echo "x86_64_macos_sha=$(extract_sha "timeglyph-${VERSION}-x86_64-apple-darwin.tar.gz")" >> $GITHUB_OUTPUT
           echo "arm64_linux_sha=$(extract_sha "timeglyph-${VERSION}-aarch64-unknown-linux-musl.tar.gz")" >> $GITHUB_OUTPUT
           echo "x86_64_linux_sha=$(extract_sha "timeglyph-${VERSION}-x86_64-unknown-linux-musl.tar.gz")" >> $GITHUB_OUTPUT
+          # Lens .app bundles for the cask (present from the release that first ships them).
+          echo "arm64_macos_app_sha=$(extract_sha "timeglyph-lens-${VERSION}-aarch64-apple-darwin.app.zip")" >> $GITHUB_OUTPUT
+          echo "x86_64_macos_app_sha=$(extract_sha "timeglyph-lens-${VERSION}-x86_64-apple-darwin.app.zip")" >> $GITHUB_OUTPUT
 
-      - name: Update Formula
+      - name: Update Formula and Cask
         run: |
           VERSION="${{ steps.get-version.outputs.version }}"
           ARM64_MACOS="${{ steps.checksums.outputs.arm64_macos_sha }}"
           X86_64_MACOS="${{ steps.checksums.outputs.x86_64_macos_sha }}"
           ARM64_LINUX="${{ steps.checksums.outputs.arm64_linux_sha }}"
           X86_64_LINUX="${{ steps.checksums.outputs.x86_64_linux_sha }}"
+          ARM64_MACOS_APP="${{ steps.checksums.outputs.arm64_macos_app_sha }}"
+          X86_64_MACOS_APP="${{ steps.checksums.outputs.x86_64_macos_app_sha }}"
 
           cat > Formula/timeglyph.rb << FORMULA
           class Timeglyph < Formula
@@ -93,8 +98,10 @@ jobs:
 
             def install
               bin.install "timeglyph"
-              # The macOS archive also carries the lens GUI (Linux is CLI-only).
-              bin.install "timeglyph-lens" if OS.mac?
+            end
+
+            def caveats
+              "The Lens GUI overlay ships as a macOS app (a /Applications icon): brew install --cask securityronin/tap/timeglyph-lens"
             end
 
             test do
@@ -107,12 +114,42 @@ jobs:
           # Remove leading whitespace from heredoc
           sed -i 's/^          //' Formula/timeglyph.rb
 
+          # The Lens GUI ships as a Homebrew Cask so macOS users get a clickable
+          # /Applications icon (Launchpad/Spotlight) — a Formula only puts a bare
+          # binary on PATH. The cask's binary stanza also exposes the lens CLI, and
+          # it depends on the formula so one `--cask` install brings the CLI too.
+          # Skip if the .app.zip is absent (older releases predate the cask).
+          if [ -n "${ARM64_MACOS_APP}" ] && [ -n "${X86_64_MACOS_APP}" ]; then
+            mkdir -p Casks
+            cat > Casks/timeglyph-lens.rb << CASK
+          cask "timeglyph-lens" do
+            arch arm: "aarch64", intel: "x86_64"
+
+            version "${VERSION}"
+            sha256 arm:   "${ARM64_MACOS_APP}",
+                   intel: "${X86_64_MACOS_APP}"
+
+            url "https://github.com/SecurityRonin/timeglyph/releases/download/v#{version}/timeglyph-lens-#{version}-#{arch}-apple-darwin.app.zip"
+            name "TimeGlyph Lens"
+            desc "Hover any on-screen number and decode its time"
+            homepage "https://github.com/SecurityRonin/timeglyph"
+
+            depends_on formula: "securityronin/tap/timeglyph"
+
+            app "timeglyph-lens.app"
+            binary "#{appdir}/timeglyph-lens.app/Contents/MacOS/timeglyph-lens"
+          end
+          CASK
+            sed -i 's/^          //' Casks/timeglyph-lens.rb
+          fi
+
       - name: Commit and push
         run: |
           VERSION="${{ steps.get-version.outputs.version }}"
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add Formula/timeglyph.rb
+          [ -f Casks/timeglyph-lens.rb ] && git add Casks/timeglyph-lens.rb
           git diff --cached --quiet && echo "No changes to commit" && exit 0
-          git commit -m "timeglyph: update to v${VERSION}"
+          git commit -m "timeglyph: update to v${VERSION} (formula + lens cask)"
           git push
