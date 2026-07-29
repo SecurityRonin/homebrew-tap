@@ -136,8 +136,8 @@ jobs:
 
             depends_on formula: "securityronin/tap/timeglyph"
 
-            app "timeglyph-lens.app"
-            binary "#{appdir}/timeglyph-lens.app/Contents/MacOS/timeglyph-lens"
+            app "TimeGlyph Lens.app"
+            binary "#{appdir}/TimeGlyph Lens.app/Contents/MacOS/timeglyph-lens"
           end
           CASK
             sed -i 's/^          //' Casks/timeglyph-lens.rb
