@@ -26,8 +26,10 @@ class Timeglyph < Formula
 
   def install
     bin.install "timeglyph"
-    # The macOS archive also carries the lens GUI (Linux is CLI-only).
-    bin.install "timeglyph-lens" if OS.mac?
+  end
+
+  def caveats
+    "The Lens GUI overlay ships as a macOS app (a /Applications icon): brew install --cask securityronin/tap/timeglyph-lens"
   end
 
   test do
