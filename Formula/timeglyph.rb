@@ -1,26 +1,26 @@
 class Timeglyph < Formula
   desc "Forensic timestamp decipherment — scored, cited, ambiguity-first"
   homepage "https://github.com/SecurityRonin/timeglyph"
-  version "0.9.1"
+  version "0.9.2"
   license "Apache-2.0"
 
   on_macos do
     if Hardware::CPU.arm?
-      url "https://github.com/SecurityRonin/timeglyph/releases/download/v0.9.1/timeglyph-0.9.1-aarch64-apple-darwin.tar.gz"
-      sha256 "45f1475050a85be8d705da0d61b082b1533763d1eb6b1fcb9d37745fa9205698"
+      url "https://github.com/SecurityRonin/timeglyph/releases/download/v0.9.2/timeglyph-0.9.2-aarch64-apple-darwin.tar.gz"
+      sha256 "ef85f58009b67cc3b5f3c1ee2859ae15503b4b3dcc96859d5db143280e3e3f99"
     else
-      url "https://github.com/SecurityRonin/timeglyph/releases/download/v0.9.1/timeglyph-0.9.1-x86_64-apple-darwin.tar.gz"
-      sha256 "60f5a912ed398e7fc80cd53116ce6efb1adcad46a041f60b7208b307db42f931"
+      url "https://github.com/SecurityRonin/timeglyph/releases/download/v0.9.2/timeglyph-0.9.2-x86_64-apple-darwin.tar.gz"
+      sha256 "2ff51a1585831b7a791273b49cec2a4406bc5e7c2a99d529c09385d098cb94e2"
     end
   end
 
   on_linux do
     if Hardware::CPU.arm?
-      url "https://github.com/SecurityRonin/timeglyph/releases/download/v0.9.1/timeglyph-0.9.1-aarch64-unknown-linux-musl.tar.gz"
-      sha256 "2cba6e2a0e35b19bbcfd8c78cadf277a052701710239783cd055e2163a59653a"
+      url "https://github.com/SecurityRonin/timeglyph/releases/download/v0.9.2/timeglyph-0.9.2-aarch64-unknown-linux-musl.tar.gz"
+      sha256 "890cdf8584e137bfeabb4ba2c700581b37f8bac562bd4f4ecf45f7da706ae3ae"
     else
-      url "https://github.com/SecurityRonin/timeglyph/releases/download/v0.9.1/timeglyph-0.9.1-x86_64-unknown-linux-musl.tar.gz"
-      sha256 "3c86e762494768c87c6c250a3b5dbbdce87d075968a6acca96ab696acfc50c7b"
+      url "https://github.com/SecurityRonin/timeglyph/releases/download/v0.9.2/timeglyph-0.9.2-x86_64-unknown-linux-musl.tar.gz"
+      sha256 "d02f72e6e7f096e48549879a5d2d73e0b60267ea052ddd59b42de7a6ae9ee203"
     end
   end
 
