@@ -1,9 +1,9 @@
 cask "timeglyph-lens" do
   arch arm: "aarch64", intel: "x86_64"
 
-  version "0.9.3"
-  sha256 arm:   "1643eb2d05c5e3fc80b5afb16ef8691af90ea0800485ccab4b7e4bdffb4306ba",
-         intel: "ac40f1c745ffc1d6c94bf9f113ffbd443e82c288e45e3e07108864946a0be8e6"
+  version "0.9.5"
+  sha256 arm:   "c2f03b8423dcbc90d2085c0736f32d26b0f1c7030741ae32804bc35cfae484c0",
+         intel: "df1d117b0fb16e55e27957b760020e64b85617022443e21afab3b96252d01556"
 
   url "https://github.com/SecurityRonin/timeglyph/releases/download/v#{version}/timeglyph-lens-#{version}-#{arch}-apple-darwin.app.zip"
   name "TimeGlyph Lens"
@@ -15,8 +15,8 @@ cask "timeglyph-lens" do
   # tap, which ABORTS the whole install ("Refusing to load formula … from
   # untrusted tap"); an explicitly-named cask is trusted. The .app therefore
   # carries the CLI in Contents/MacOS and we expose it below, so
-  #  is a genuine ONE-command install of CLI + GUI
-  # with no  step. (The formula still ships the CLI alone.)
+  # "brew install --cask ..." is a genuine ONE-command install of CLI + GUI
+  # with no "brew trust" step. (The formula still ships the CLI alone.)
   app "TimeGlyph Lens.app"
   binary "#{appdir}/TimeGlyph Lens.app/Contents/MacOS/timeglyph-lens"
   binary "#{appdir}/TimeGlyph Lens.app/Contents/MacOS/timeglyph"
