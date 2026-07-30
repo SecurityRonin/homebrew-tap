@@ -121,6 +121,13 @@ jobs:
           # Skip if the .app.zip is absent (older releases predate the cask).
           if [ -n "${ARM64_MACOS_APP}" ] && [ -n "${X86_64_MACOS_APP}" ]; then
             mkdir -p Casks
+            # NEVER put a backtick or $(...) in the heredoc body below. The delimiter is
+            # deliberately UNQUOTED so ${VERSION} and the ${*_MACOS_APP} shas interpolate,
+            # which means the shell also runs command substitution in there — including
+            # inside lines that look like Ruby comments, because a heredoc has no comments.
+            # Two backticked phrases here were silently EXECUTED and replaced with their
+            # empty output, shipping a cask whose comment had holes in it. Use "quotes" in
+            # prose. Same trap as a backtick in git commit -m: use plain text, not escapes.
             cat > Casks/timeglyph-lens.rb << CASK
           cask "timeglyph-lens" do
             arch arm: "aarch64", intel: "x86_64"
@@ -139,8 +146,8 @@ jobs:
             # tap, which ABORTS the whole install ("Refusing to load formula … from
             # untrusted tap"); an explicitly-named cask is trusted. The .app therefore
             # carries the CLI in Contents/MacOS and we expose it below, so
-            # `brew install --cask …` is a genuine ONE-command install of CLI + GUI
-            # with no `brew trust` step. (The formula still ships the CLI alone.)
+            # "brew install --cask ..." is a genuine ONE-command install of CLI + GUI
+            # with no "brew trust" step. (The formula still ships the CLI alone.)
             app "TimeGlyph Lens.app"
             binary "#{appdir}/TimeGlyph Lens.app/Contents/MacOS/timeglyph-lens"
             binary "#{appdir}/TimeGlyph Lens.app/Contents/MacOS/timeglyph"
