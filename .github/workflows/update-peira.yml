@@ -51,21 +51,31 @@ jobs:
         run: |
           VERSION="${{ steps.get-version.outputs.version }}"
           extract_sha() {
+            # Anchored: unanchored, a name that is a prefix of another asset
+            # (foo.tar.gz vs foo.tar.gz.sig) takes whichever line comes first.
             sha=$(grep " $1\$" checksums.txt | awk '{print $1}')
-            # An empty sha256 renders a formula that fails at install time with a
-            # mismatch, blaming the artifact for a lookup that returned nothing.
-            # Refuse here instead, naming the file that was not found.
             if [ -z "$sha" ]; then
-              echo "::error::no checksum for $1 in the v${VERSION} release"
-              exit 1
+              # RETURN, never exit: this runs inside $( ), where `exit` kills only
+              # the subshell and the caller writes an empty sha256 and carries on.
+              # An empty sha256 reaches the user as a checksum MISMATCH at
+              # `brew install`, blaming the download for a lookup that found nothing.
+              echo "::error::no checksum for $1 in this release" >&2
+              return 1
             fi
             printf '%s' "$sha"
           }
+          # Assignments, not echoes: an assignment's status IS the substitution's,
+          # so `|| exit 1` fires in THIS shell. Written as `echo "x=$(...)"` the
+          # failure is swallowed and the step goes green over an empty hash.
+          ARM64_MACOS=$(extract_sha "peira-${VERSION}-aarch64-apple-darwin.tar.gz") || exit 1
+          X86_64_MACOS=$(extract_sha "peira-${VERSION}-x86_64-apple-darwin.tar.gz") || exit 1
+          ARM64_LINUX=$(extract_sha "peira-${VERSION}-aarch64-unknown-linux-musl.tar.gz") || exit 1
+          X86_64_LINUX=$(extract_sha "peira-${VERSION}-x86_64-unknown-linux-musl.tar.gz") || exit 1
           {
-            echo "arm64_macos_sha=$(extract_sha "peira-${VERSION}-aarch64-apple-darwin.tar.gz")"
-            echo "x86_64_macos_sha=$(extract_sha "peira-${VERSION}-x86_64-apple-darwin.tar.gz")"
-            echo "arm64_linux_sha=$(extract_sha "peira-${VERSION}-aarch64-unknown-linux-musl.tar.gz")"
-            echo "x86_64_linux_sha=$(extract_sha "peira-${VERSION}-x86_64-unknown-linux-musl.tar.gz")"
+            echo "arm64_macos_sha=$ARM64_MACOS"
+            echo "x86_64_macos_sha=$X86_64_MACOS"
+            echo "arm64_linux_sha=$ARM64_LINUX"
+            echo "x86_64_linux_sha=$X86_64_LINUX"
           } >> $GITHUB_OUTPUT
 
       - name: Update Formula

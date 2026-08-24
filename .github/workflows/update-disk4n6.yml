@@ -30,7 +30,7 @@ jobs:
           echo "version=${VERSION}" >> $GITHUB_OUTPUT
 
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
 
       - name: Download checksums from release
         run: |
@@ -47,14 +47,29 @@ jobs:
         id: checksums
         run: |
           extract_sha() {
-            grep "$1" checksums.txt | awk '{print $1}'
+            # Anchored: unanchored, a name that is a prefix of another asset
+            # (foo.tar.gz vs foo.tar.gz.sig) takes whichever line comes first.
+            sha=$(grep " $1\$" checksums.txt | awk '{print $1}')
+            if [ -z "$sha" ]; then
+              # RETURN, never exit: this runs inside $( ), where `exit` kills only
+              # the subshell and the caller writes an empty sha256 and carries on.
+              # An empty sha256 reaches the user as a checksum MISMATCH at
+              # `brew install`, blaming the download for a lookup that found nothing.
+              echo "::error::no checksum for $1 in this release" >&2
+              return 1
+            fi
+            printf '%s' "$sha"
           }
 
           VERSION="${{ steps.get-version.outputs.version }}"
-          echo "arm64_macos_sha=$(extract_sha "disk4n6-${VERSION}-aarch64-apple-darwin.tar.gz")" >> $GITHUB_OUTPUT
-          echo "x86_64_macos_sha=$(extract_sha "disk4n6-${VERSION}-x86_64-apple-darwin.tar.gz")" >> $GITHUB_OUTPUT
-          echo "arm64_linux_sha=$(extract_sha "disk4n6-${VERSION}-aarch64-unknown-linux-musl.tar.gz")" >> $GITHUB_OUTPUT
-          echo "x86_64_linux_sha=$(extract_sha "disk4n6-${VERSION}-x86_64-unknown-linux-musl.tar.gz")" >> $GITHUB_OUTPUT
+          ARM64_MACOS_SHA=$(extract_sha "disk4n6-${VERSION}-aarch64-apple-darwin.tar.gz") || exit 1
+          echo "arm64_macos_sha=$ARM64_MACOS_SHA" >> $GITHUB_OUTPUT
+          X86_64_MACOS_SHA=$(extract_sha "disk4n6-${VERSION}-x86_64-apple-darwin.tar.gz") || exit 1
+          echo "x86_64_macos_sha=$X86_64_MACOS_SHA" >> $GITHUB_OUTPUT
+          ARM64_LINUX_SHA=$(extract_sha "disk4n6-${VERSION}-aarch64-unknown-linux-musl.tar.gz") || exit 1
+          echo "arm64_linux_sha=$ARM64_LINUX_SHA" >> $GITHUB_OUTPUT
+          X86_64_LINUX_SHA=$(extract_sha "disk4n6-${VERSION}-x86_64-unknown-linux-musl.tar.gz") || exit 1
+          echo "x86_64_linux_sha=$X86_64_LINUX_SHA" >> $GITHUB_OUTPUT
 
       - name: Update Formula
         run: |
