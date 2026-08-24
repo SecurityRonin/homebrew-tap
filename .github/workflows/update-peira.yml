@@ -1,0 +1,138 @@
+name: Update peira formula
+
+on:
+  repository_dispatch:
+    types: [update-peira]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to update to (e.g., v0.1.0 or 0.1.0)'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  update-formula:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set version from event
+        id: get-version
+        run: |
+          if [ "${{ github.event_name }}" = "repository_dispatch" ]; then
+            RAW="${{ github.event.client_payload.version }}"
+          else
+            RAW="${{ inputs.version }}"
+          fi
+          # Strip leading 'v' if present (tags are v0.1.0, formula wants 0.1.0)
+          VERSION="${RAW#v}"
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+
+      # Pinned to a SHA rather than @v4 like its siblings: this workflow writes the
+      # URLs and sha256s that `brew install` trusts, so a mutable tag here is a
+      # supply-chain surface the other formulae's read-only work does not have.
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+
+      - name: Download checksums from release
+        run: |
+          VERSION="${{ steps.get-version.outputs.version }}"
+          echo "Downloading checksums for v${VERSION}..."
+          gh release download "v${VERSION}" \
+            --repo SecurityRonin/peira \
+            --pattern "checksums.txt"
+          cat checksums.txt
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      - name: Extract SHA256 checksums
+        id: checksums
+        run: |
+          VERSION="${{ steps.get-version.outputs.version }}"
+          extract_sha() {
+            sha=$(grep " $1\$" checksums.txt | awk '{print $1}')
+            # An empty sha256 renders a formula that fails at install time with a
+            # mismatch, blaming the artifact for a lookup that returned nothing.
+            # Refuse here instead, naming the file that was not found.
+            if [ -z "$sha" ]; then
+              echo "::error::no checksum for $1 in the v${VERSION} release"
+              exit 1
+            fi
+            printf '%s' "$sha"
+          }
+          {
+            echo "arm64_macos_sha=$(extract_sha "peira-${VERSION}-aarch64-apple-darwin.tar.gz")"
+            echo "x86_64_macos_sha=$(extract_sha "peira-${VERSION}-x86_64-apple-darwin.tar.gz")"
+            echo "arm64_linux_sha=$(extract_sha "peira-${VERSION}-aarch64-unknown-linux-musl.tar.gz")"
+            echo "x86_64_linux_sha=$(extract_sha "peira-${VERSION}-x86_64-unknown-linux-musl.tar.gz")"
+          } >> $GITHUB_OUTPUT
+
+      - name: Update Formula
+        run: |
+          VERSION="${{ steps.get-version.outputs.version }}"
+          ARM64_MACOS="${{ steps.checksums.outputs.arm64_macos_sha }}"
+          X86_64_MACOS="${{ steps.checksums.outputs.x86_64_macos_sha }}"
+          ARM64_LINUX="${{ steps.checksums.outputs.arm64_linux_sha }}"
+          X86_64_LINUX="${{ steps.checksums.outputs.x86_64_linux_sha }}"
+
+          cat > Formula/peira.rb << FORMULA
+          class Peira < Formula
+            desc "Examine a knowledge vault against classical critical-thinking gates"
+            homepage "https://github.com/SecurityRonin/peira"
+            version "${VERSION}"
+            license "Apache-2.0"
+
+            on_macos do
+              if Hardware::CPU.arm?
+                url "https://github.com/SecurityRonin/peira/releases/download/v${VERSION}/peira-${VERSION}-aarch64-apple-darwin.tar.gz"
+                sha256 "${ARM64_MACOS}"
+              else
+                url "https://github.com/SecurityRonin/peira/releases/download/v${VERSION}/peira-${VERSION}-x86_64-apple-darwin.tar.gz"
+                sha256 "${X86_64_MACOS}"
+              end
+            end
+
+            on_linux do
+              if Hardware::CPU.arm?
+                url "https://github.com/SecurityRonin/peira/releases/download/v${VERSION}/peira-${VERSION}-aarch64-unknown-linux-musl.tar.gz"
+                sha256 "${ARM64_LINUX}"
+              else
+                url "https://github.com/SecurityRonin/peira/releases/download/v${VERSION}/peira-${VERSION}-x86_64-unknown-linux-musl.tar.gz"
+                sha256 "${X86_64_LINUX}"
+              end
+            end
+
+            def install
+              bin.install "peira"
+            end
+
+            test do
+              assert_match "peira", shell_output("#{bin}/peira --version")
+
+              # The catalogue loads. Asserted on the word rather than the count,
+              # which changes every time a lens is added.
+              assert_match "lenses", shell_output("#{bin}/peira lens")
+
+              # And it does real work: scaffold a vault and check the four areas.
+              system bin/"peira", "init", testpath/"vault"
+              %w[60-lexicon 70-inquiry 80-examinations 90-packets].each do |area|
+                assert_predicate testpath/"vault"/area, :directory?
+              end
+            end
+          end
+          FORMULA
+
+          # Remove leading whitespace from heredoc
+          sed -i 's/^          //' Formula/peira.rb
+          cat Formula/peira.rb
+
+      - name: Commit and push
+        run: |
+          VERSION="${{ steps.get-version.outputs.version }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add Formula/peira.rb
+          git diff --cached --quiet && echo "No changes to commit" && exit 0
+          git commit -m "peira: update to v${VERSION}"
+          git push
