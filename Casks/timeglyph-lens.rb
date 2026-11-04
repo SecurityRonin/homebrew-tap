@@ -1,9 +1,9 @@
 cask "timeglyph-lens" do
   arch arm: "aarch64", intel: "x86_64"
 
-  version "0.9.5"
-  sha256 arm:   "c2f03b8423dcbc90d2085c0736f32d26b0f1c7030741ae32804bc35cfae484c0",
-         intel: "df1d117b0fb16e55e27957b760020e64b85617022443e21afab3b96252d01556"
+  version "0.10.0"
+  sha256 arm:   "16a8bc7a56a81ab7e0b83cdd5992b99bc0c69bbd5685a301c7c84d5ce2b5f6ec",
+         intel: "367b55dbc8e5007912b136ab2d953b2197398a5e71b9ab8a34c3796cec077a47"
 
   url "https://github.com/SecurityRonin/timeglyph/releases/download/v#{version}/timeglyph-lens-#{version}-#{arch}-apple-darwin.app.zip"
   name "TimeGlyph Lens"
